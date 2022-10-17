@@ -43,3 +43,59 @@ sudo -u ${buildaccount} bash -c "sudo ./svc.sh start"
 echo "$0 complete..."
 
 ```
+
+## Setup Windows Build-Deploy agent
+
+```ps
+# run this on the windows server
+$devopsurl="https://my-org.visualstudio.com/"
+$azurepat="pat-generated-from-azure-devops"
+$deploymentpool="build-deploy-pool"
+
+# for more information on setup of a deployment agent - https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-windows?view=azure-devops
+
+Write-Host "Registering deployment agent..."
+
+$ErrorActionPreference = "Stop";
+If(-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent() ).IsInRole( [Security.Principal.WindowsBuiltInRole] "Administrator")) 
+{ throw "Run command in an administrator PowerShell prompt" };
+If ($PSVersionTable.PSVersion -lt (New-Object System.Version("3.0"))) { 
+    throw "The minimum version of Windows PowerShell that is required by the script (3.0) does not match the currently running version of Windows PowerShell." 
+};
+If (-NOT (Test-Path $env:SystemDrive\'azagent')) {
+    mkdir $env:SystemDrive\'azagent'
+};
+cd $env:SystemDrive\'azagent';
+for ($i = 1; $i -lt 100; $i++) {
+    $destFolder = "A" + $i.ToString();
+    if (-NOT (Test-Path ($destFolder))) {
+        mkdir $destFolder; 
+        cd $destFolder; 
+        break;
+    }
+};
+$agentZip = "$PWD\agent.zip";
+$DefaultProxy = [System.Net.WebRequest]::DefaultWebProxy; 
+$securityProtocol = @();
+$securityProtocol += [Net.ServicePointManager]::SecurityProtocol;
+$securityProtocol += [Net.SecurityProtocolType]::Tls12; [Net.ServicePointManager]::SecurityProtocol = $securityProtocol; $WebClient = New-Object Net.WebClient;
+$Uri = 'https://vstsagentpackage.azureedge.net/agent/2.211.0/vsts-agent-win-x64-2.211.0.zip';
+if ($DefaultProxy -and (-not $DefaultProxy.IsBypassed($Uri))) {
+    $WebClient.Proxy = New-Object Net.WebProxy($DefaultProxy.GetProxy($Uri).OriginalString, $True);
+};
+$WebClient.DownloadFile($Uri, $agentZip);
+Add-Type -AssemblyName System.IO.Compression.FileSystem;
+[System.IO.Compression.ZipFile]::ExtractToDirectory( $agentZip, "$PWD");
+
+#this will run as NT AUTHORITY\SYSTEM
+#default agent name to hostname
+.\config.cmd --unattended `
+    --deploymentpool `
+    --deploymentpoolname "${deploymentpool}" `
+    --agent $env:COMPUTERNAME `
+    --replace `
+    --runasservice --work '_work' `
+    --url $devopsurl `
+    --auth PAT --token "${azurepat}"
+Remove-Item $agentZip;
+```
