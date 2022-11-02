@@ -62,3 +62,10 @@ kubectl api-resources --namespaced=true
 # Not in a namespace
 kubectl api-resources --namespaced=false
 ```
+
+## CIDR ranges for services and pods
+[link](https://stackoverflow.com/questions/44190607/how-do-you-find-the-cluster-service-cidr-of-a-kubernetes-cluster)
+```sh
+kubectl cluster-info dump | grep -m 1 cluster-ip-range
+kubectl cluster-info dump | grep -m 1 cluster-cidr
+```
