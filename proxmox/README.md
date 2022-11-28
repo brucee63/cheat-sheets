@@ -47,3 +47,12 @@ wget https://raw.githubusercontent.com/Weilbyte/PVEDiscordDark/master/PVEDiscord
 bash PVEDiscordDark.sh install
 ```
 
+## two node cluster, no quorum
+In the case you want to have one proxmox server up without the other, update the `/etc/pve/corosync.conf` file, add the following to the quorum config section
+```js
+quorum {
+  provider: corosync_votequorum
+  two_node: 1
+  wait_for_all: 0
+}
+```
