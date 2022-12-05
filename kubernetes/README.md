@@ -1,5 +1,15 @@
 # Kubernetes
 
+## install kubectl
+```sh
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl
+sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubectl
+```
+
 ## kubectl auto-completion and aliasing
 [link](https://kubernetes.io/docs/tasks/tools/included/optional-kubectl-configs-bash-linux/)
 ```sh
@@ -13,6 +23,12 @@ echo 'alias k=kubectl' >>~/.bashrc
 echo 'complete -o default -F __start_kubectl k' >>~/.bashrc
 
 source ~/.bashrc
+```
+
+```sh
+# for zsh, add to .zshrc ->
+source <(kubectl completion zsh)
+source .zshrc
 ```
 
 ## change current namespace

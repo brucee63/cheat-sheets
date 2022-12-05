@@ -17,3 +17,31 @@ sudo apt-get install fontconfig openjdk-11-jre
 sudo apt-get install jenkins
 ```
 
+## Publish Over SSH
+- Install the Publish Over SSH plugin
+- Verify the remote server has sshd running and accepts PK authentication
+
+```sh
+nano /etc/ssh/sshd_config
+
+# ensure the following
+PubkeyAuthentication yes
+PubkeyAcceptedKeyTypes=+ssh-rsa
+
+sudo systemctl restart sshd
+```
+
+- Generate RSA key for jenkins user
+```sh
+sudo su - jenkins
+ssh-keygen -t rsa -b 4096 -m PEM
+ssh-copy-id user@remoteserver
+
+#verify login to remote server
+ssh user@remoteserver 
+```
+
+- Goto Manage Jenkins -> Configure System -> Publish Over SSH <br >
+Path to key: `/var/lib/jenkins/.ssh/id_rsa`
+
+- Add an SSH server
