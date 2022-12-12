@@ -102,8 +102,3 @@ sudo mv kustomize /usr/local/bin
 # setup metallb, see metallb.sh
 
 # setup traefik, see ../scripts/traefik.sh
-
-# setup rabbitmq
-kubectl apply -k ../config/rabbitmq/overlay/local/kustomization.yaml
-
-
