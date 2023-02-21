@@ -36,6 +36,11 @@ source .zshrc
 kubectl config set-context --current --namespace=my-namespace
 ```
 
+## view current namespace
+```sh
+kubectl config view --minify | grep namespace:
+```
+
 via alias
 ```sh
 alias kubens='kubectl config set-context --current --namespace '
