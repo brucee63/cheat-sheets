@@ -34,11 +34,11 @@ metadata:
 spec:
   containers:
   - name: myapp-container
-    image: harbor.nonprod.caas.energy.sug.pri/docker-hub-proxy/library/busybox:1.28
+    image: busybox:1.28
     command: ['sh', '-c', 'echo The app is now running because nginx is available! && sleep 3600']
   initContainers:
   - name: init-testnginx
-    image: harbor.nonprod.caas.energy.sug.pri/docker-hub-proxy/library/busybox:1.28
+    image: busybox:1.28
     command:
     - 'sh'
     - '-c'
