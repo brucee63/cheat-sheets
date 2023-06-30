@@ -2,7 +2,7 @@
 This is a demonstration of using k8s initContainers to block creation of a pod until the dependent resource is avialable. In this case we have a `curl` pod called `myapp`, with a container called `myapp-container` which will not start until an http default page hosted by an `nginx` web server is running and routable via a k8s service. <br />
 The initContainers pod is using the `curlimages/curl` image as it's lightweight and we'll have access to the `curl` command which we'll use to verify the HTTP status code response (200) of the `nginx` web server.
 
-## Tests
+## HTTP Tests
 create namespace
 ```sh
 kubectl create ns test-init
@@ -40,7 +40,7 @@ spec:
   - name: init-testnginx
     image: curlimages/curl:latest
     command: ["/bin/sh","-c"]
-    args: ["while [ $(curl -sw '%{http_code}' nginx:8080 -o /dev/null) -ne 200 ]; do sleep 5; echo 'Waiting for the webserver...'; done"]
+    args: ["while [ $(curl -sw '%{http_code}' nginx:8080 -o /dev/null) -ne 200 ]; do sleep 5; echo 'Waiting for the webserver...'; done; echo ready!;"]
 EOF
 
 kubectl apply -f myapp.yaml
@@ -110,6 +110,101 @@ kubectl apply -f nginx-service.yaml
 ```
 
 Now the myApp pod should start within 5-10s
+```sh
+kubectl get pods -n test-init
+```
+
+cleanup/delete the namespace
+```sh
+kubectl delete ns test-init
+```
+
+## Redis Tests
+
+```sh
+kubectl create ns test-init
+```
+
+```sh
+cat <<EOF >>myapp-redis.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-redis-pod
+  namespace: test-init
+  labels:
+    app: myapp-redis
+spec:
+  containers:
+  - name: myapp-redis-container
+    image: curlimages/curl:latest
+    command: ['sh', '-c', 'echo The app is now running because nginx is available! && sleep 3600']
+  initContainers:
+  - name: init-test-redis
+    image: redis:latest
+    command: ["/bin/sh","-c"]
+    args: ["until redis-cli  -h redis-test -p 6379  get hello; do echo 'Waiting for the redis-test...'; sleep 5; done; echo ready!;"]
+EOF
+
+kubectl apply -f myapp-redis.yaml
+```
+
+Note we're running redis a an non-privileged user -
+```sh
+cat <<EOF >>redis-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  namespace: test-init
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - securityContext:
+          runAsUser: 1
+        name: redis
+        image: redis:latest
+        ports:
+        - containerPort: 6379
+EOF
+
+kubectl apply -f redis-deployment.yaml
+```
+
+verify that the `myapp-redis-pod` is still in Init stage
+```sh
+kubectl get pods -n test-init
+```
+
+```sh
+cat <<EOF >>redis-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-test
+  namespace: test-init
+  labels:
+    app: redis
+spec:
+  clusterIP: None
+  selector:
+    app: redis
+EOF
+
+kubectl apply -f redis-service.yaml
+```
+
+Now the `myapp-redis-pod` container should be running
 ```sh
 kubectl get pods -n test-init
 ```
