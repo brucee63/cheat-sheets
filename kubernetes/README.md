@@ -11,7 +11,7 @@ sudo apt-get install -y kubectl
 ```
 
 ## kubectl auto-completion and aliasing
-[link](https://kubernetes.io/docs/tasks/tools/included/optional-kubectl-configs-bash-linux/)
+[link](https://kubernetes.io/docs/reference/kubectl/cheatsheet/#bash)
 ```sh
 # verify bash-completion is installed 
 type _init_completion
