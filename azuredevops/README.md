@@ -79,10 +79,8 @@ $DefaultProxy = [System.Net.WebRequest]::DefaultWebProxy;
 $securityProtocol = @();
 $securityProtocol += [Net.ServicePointManager]::SecurityProtocol;
 $securityProtocol += [Net.SecurityProtocolType]::Tls12; [Net.ServicePointManager]::SecurityProtocol = $securityProtocol; $WebClient = New-Object Net.WebClient;
-$Uri = 'https://vstsagentpackage.azureedge.net/agent/2.211.0/vsts-agent-win-x64-2.211.0.zip';
-if ($DefaultProxy -and (-not $DefaultProxy.IsBypassed($Uri))) {
-    $WebClient.Proxy = New-Object Net.WebProxy($DefaultProxy.GetProxy($Uri).OriginalString, $True);
-};
+$Uri='https://vstsagentpackage.azureedge.net/agent/3.220.5/vsts-agent-win-x64-3.220.5.zip';
+if($DefaultProxy -and (-not $DefaultProxy.IsBypassed($Uri)))
 $WebClient.DownloadFile($Uri, $agentZip);
 Add-Type -AssemblyName System.IO.Compression.FileSystem;
 [System.IO.Compression.ZipFile]::ExtractToDirectory( $agentZip, "$PWD");
