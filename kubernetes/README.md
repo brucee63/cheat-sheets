@@ -52,6 +52,11 @@ alias kubectx='kubectl config use-context '
 kubectl delete all --all -n namespace
 ```
 
+## delete all pods in a namespace matching a particular pattern
+```sh
+kubectl get pods -n mynamespace --no-headers=true | awk '/patterntomatch/{print $1}'| xargs  kubectl delete -n mynamespace pod
+```
+
 ## wait until pod is ready
 
 watch
@@ -89,4 +94,9 @@ kubectl api-resources --namespaced=false
 ```sh
 kubectl cluster-info dump | grep -m 1 cluster-ip-range
 kubectl cluster-info dump | grep -m 1 cluster-cidr
+```
+
+## Get podsecuritypolicy for a pod (using jsonpath)
+```sh
+k get pod -n mynamespace mypod -o jsonpath={.metadata.annotations}
 ```
