@@ -1,0 +1,48 @@
+resources:
+  - busybox-deployment.yaml
+
+configMapGenerator:
+  - name: repo-config-map
+    namespace: default
+    envs:
+      - .env
+
+replacements:
+  - source:
+      # Replace any matches by the value of environment variable `IMAGEREPO`.
+      kind: ConfigMap
+      name: repo-config-map
+      namespace: default
+      fieldPath: data.IMAGEREPO
+    targets:
+      - select:
+          # In each Deployment resource …
+          kind: Deployment
+          group: apps
+          version: v1
+          labelSelector: customimage=true   # use selectors if all of you deployments don't need repo replacement
+        fieldPaths:
+          # match the image
+          - spec.template.spec.containers.*.image
+        options:
+          # … but replace only the repo part (image tag) when split by "/".
+          delimiter: "/"
+          index: 0
+      - select:
+          # In each Deployment resource …
+          kind: Deployment
+          group: apps
+          version: v1
+          labelSelector: inittests=true     # repo replacement for initContainers is a separate concern, and the need can differ per deployment
+        fieldPaths:
+          # match the initContainer image
+          - spec.template.spec.initContainers.*.image          
+        options:
+          # … but replace only the repo part (image tag) when split by "/".
+          delimiter: "/"
+          index: 0
+
+##uncomment to update the tag
+#images:
+#  - name: dev.imagerepo/test(.*)
+#    newtag: newtag

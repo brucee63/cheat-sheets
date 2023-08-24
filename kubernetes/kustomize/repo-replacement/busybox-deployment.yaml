@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: busybox
+  namespace: default
+  labels:
+    customimage: "true"     # important if you have deployment images where you don't want the repo replaced, tag those as "false"
+    initcontainers: "false" # if you have initContainers images which are custom, and need to be replaced as well, tag these deployments as "true"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: busybox
+      labels:
+        app: busybox
+    spec:
+      containers:
+      - image: dev.imagerepo/test/busybox:1.28
+        command:
+        - sleep
+        - "3600"
+      restartPolicy: Always
