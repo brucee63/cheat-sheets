@@ -3,7 +3,15 @@ This assumes a minikube setup with docker as the driver in a VM. It also assumes
 
 Create a minikube with the 6g of ram
 ```sh
-minikube start --kubernetes-version=v1.23.0 --memory=6g --bootstrapper=kubeadm --extra-config=kubelet.authentication-token-webhook=true --extra-config=kubelet.authorization-mode=Webhook --extra-config=scheduler.bind-address=0.0.0.0 --extra-config=controller-manager.bind-address=0.0.0.0 --driver=docker
+minikube start --kubernetes-version=v1.23.0 \
+--memory=6g \
+--bootstrapper=kubeadm \
+--extra-config=kubelet.authentication-token-webhook=true \
+--extra-config=kubelet.authorization-mode=Webhook \
+--extra-config=scheduler.bind-address=0.0.0.0 \
+--extra-config=controller-manager.bind-address=0.0.0.0 \
+--extra-config=etcd.listen-metrics-urls=http://0.0.0.0:2381 \
+--driver=docker
 ```
 
 if you have another driver, just omit and it will pick up the default.
@@ -13,7 +21,7 @@ create the stack in the monitoring namespace
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 
-helm create ns monitoring
+kubectl create ns monitoring
 kubectl create secret generic grafana-admin-credentials --from-literal admin-user="admin" --from-literal admin-password="admin-password" -n monitoring
 ```
 
@@ -30,6 +38,11 @@ sed -i s/127.0.0.1/$KUBEHOSTIP/g values-updated-ip.yaml
 ## create the prometheus stack
 ```sh
 helm upgrade -i -n monitoring prometheus prometheus-community/kube-prometheus-stack -f values-updated-ip.yaml
+```
+
+wait for all pods to come up in monitoring namespace...
+```sh
+watch kubectl get pods -n monitoring
 ```
 
 ### port forward the services once all the pods are running (detached)

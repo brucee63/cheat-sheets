@@ -2,7 +2,7 @@
 
 
 ## replace repo on images
-this will replace the image repo globally on deployments where you add the appropriate label. Support for this is somewhat lacking with the `images` feature (useful for tags) or builtin transformers. This is using the `configMapGenerator`
+This will replace the image repo globally on deployments where you add the appropriate label. Support for this is somewhat lacking with the `images` feature (useful for tags) or builtin transformers. This is using the `configMapGenerator`
 
 In this example the existing image repo is `dev.imagerepo` and we want to replace it with `prod.imagerepo`, we're leaving the user/project alone here, but that could potentially be updated by changing the delimiter logic below. This is useful if you have a lot of images to replace and don't want configuration management sprawl.
 
@@ -35,7 +35,7 @@ spec:
         app: busybox
     spec:
       containers:
-      - image: dev.imagerepo/test/busybox:1.28
+      - image: dev.imagerepo/test/busybox:1.28  # registry to be updated
         command:
         - sleep
         - "3600"
@@ -102,4 +102,10 @@ replacements:
 run 
 ```sh
 kustomize build ./repo-replacement
+```
+
+For the sake of completeness, a simple approach to use in a pinch. Just pipe the output of kustomize to sed and apply it -
+
+```sh
+kustomize build . | sed -E "s/dev.imagerepo/prod.imagerepo/" | kubectl apply -f -
 ```
