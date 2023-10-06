@@ -1,4 +1,4 @@
-I've looked at both Traefik and NGINX for the RabbitMQ external access use case. For RabbitMQ, NGINX Ingress ended up being the simpler option for me to expose the AMQP protocol via TCP. It's also the default ingress provider for minikube (if you enable it), which is useful. Both seem the handle HTTP/HTTPS equally well, but Traefik appeared to require more explict/verbose TCP configuration to setup. If anyone has a comparable example using Traefik, I'd be interested to see it.
+I've looked at both Traefik and NGINX for the RabbitMQ external access use case. For RabbitMQ, NGINX Ingress ended up being the simpler option for me to expose the AMQP protocol via TCP. It's also the default ingress provider for minikube (if you enable it), which is useful. Both seem the handle HTTP/HTTPS equally well, but Traefik appeared to require more explict/verbose TCP configuration to setup.
 
 Note, there is nothing stopping you from having more than one ingress controller in use on a cluster for different purposes/use cases.
 
@@ -249,7 +249,7 @@ From the .NET client, you can now test connectivity to the TCP port 5672 using t
 
 That's should do it. I've verified this in minikube and have done the same on actual clusters using helm for nginx ingress.
 
-## multitple cluster considerations
+## multiple cluster considerations
 Note: if you're hosting multiple rabbitmq clusters (from a single kubernetes cluster), you'll have to map to different externally available ports on the same ingress IP (e.g. 5782 -> test-rabbitmq-2/cluster-service:5672).
 
 Alternatively, you could run multiple instances of an ingress controller, but there is additional overhead (and complexity) using this approach.
