@@ -100,3 +100,15 @@ kubectl cluster-info dump | grep -m 1 cluster-cidr
 ```sh
 k get pod -n mynamespace mypod -o jsonpath={.metadata.annotations}
 ```
+
+## Pod status summary
+
+summary of statuses of pods for entire instance
+```sh
+kubectl get pod -A --no-headers |awk '{arr[$4]++}END{for (a in arr) print a, arr[a]}'
+```
+
+watch for non-running pod statuses
+```sh
+kubectl get pods -A | grep -v Running
+```
