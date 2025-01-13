@@ -2,6 +2,10 @@
 
 ## History
 
+Note: PSReadLine is installed by default in PowerShell versions 5.1 or later.
+
+If you an older version of PowerShell, you can check to see if it's installed and configured properly.
+
 Ensure you have >= PSReadLine version 2.0
 
 ```PowerShell
@@ -13,10 +17,18 @@ If outdated or missing, install/update it:
 Install-Module -Name PSReadLine -Force
 ```
 
-Configure PSReadLine to save history 
+Note that the following settings to save history are default in PowerShell 5.1 or later.
+To check you default settings you can use the following command -
+
+```PowerShell
+Get-PSReadLineOption
+```
+
+Configure PSReadLine to save history, add to your PowerShell profile via `notepad $PROFILE` if on an older version of PowerShell, or if you want to override these default settings.
 ```PowerShell
 Set-PSReadLineOption -HistorySavePath "$env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt"
 Set-PSReadLineOption -HistorySaveStyle SaveIncrementally
+Set-PSReadLineOption -MaximumHistoryCount 4096
 ```
 
 Press up or `Ctrl+R` to search through history.
@@ -33,7 +45,6 @@ Select-String "<search pattern>" (Get-PSReadlineOption).HistorySavePath
 Get-Content (Get-PSReadlineOption).HistorySavePath | Select-String "<search pattern>" 
 
 #For an alias
-
 function Get-HistoryFile {
     Get-Content (Get-PSReadlineOption).HistorySavePath
 }
@@ -84,8 +95,13 @@ function Grep-Command {
 ```
 
 ## Aliases
+For more on [Using Aliases](https://learn.microsoft.com/en-us/powershell/scripting/learn/shell/using-aliases?view=powershell-7.4)
+
+Add to your profile, using `notepad $PROFILE`
+```PowerShell 
 Set-Alias -Name grep -Value Grep-Command
 Set-Alias -Name hist -Value hist
+```
 
 ## Active Directory (AD) Commands
 
