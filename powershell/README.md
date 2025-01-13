@@ -43,7 +43,48 @@ function Get-HistoryFile {
 For more informaton on [Command history](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_history?view=powershell-7.4), 
 and the [Set-PSReadLineOption command](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_history?view=powershell-7.4)
 
+## Grep 
+Grep command that works like linux for piping results in
+
+```PowerShell
+function Grep-Command {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Pattern,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [Alias("FilePath")]
+        [string[]]$Path
+    )
+
+    begin {
+        $inputLines = @()
+    }
+
+    process {
+        # Collect input lines if piped data exists
+        if ($null -ne $_) {
+            $inputLines += $_
+        }
+    }
+
+    end {
+        if ($inputLines.Count -gt 0) {
+            # If piped input exists, search it
+            $inputLines | Select-String -Pattern $Pattern
+        } elseif ($Path) {
+            # If file paths are provided, search the files
+            Select-String -Pattern $Pattern -Path $Path
+        } else {
+            Write-Error "No input provided. Either pipe input or specify a file."
+        }
+    }
+}
+
+```
+
 ## Aliases
+Set-Alias -Name grep -Value Grep-Command
 Set-Alias -Name hist -Value hist
 
 ## Active Directory (AD) Commands
