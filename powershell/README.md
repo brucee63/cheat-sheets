@@ -89,6 +89,21 @@ Set-Alias -Name hist -Value hist
 
 ## Active Directory (AD) Commands
 
+Install the Rsat Tools
+```PowerShell
+Add-WindowsCapability -Online -Name "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0"
+```
+
+Import the Active Directory Module 
+```PowerShell
+Import-Module ActiveDirectory
+```
+
+Verify Install
+```PowerShell
+Get-Module -ListAvailable ActiveDirectory
+```
+
 All groups which a user belongs to
 ```PowerShell
 Get-ADUser -Identity account -Property MemberOf | Select-Object -ExpandProperty MemberOf | ForEach-Object { Get-ADGroup -Identity $_ }
